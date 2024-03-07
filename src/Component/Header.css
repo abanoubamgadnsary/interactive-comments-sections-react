@@ -1,0 +1,143 @@
+.header {
+  width: 100%;
+  margin-top: 10px;
+}
+.header div {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 13px;
+  margin: 2px;
+}
+.header .user-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header .user img {
+  width: 35px;
+  margin: 10px;
+}
+
+.header .user .username {
+  font-weight: 500;
+  font-size: 16px;
+  color: hsl(212, 24%, 26%);
+}
+
+.header .user .time {
+  font-size: 15px;
+  color: hsl(211, 10%, 45%);
+}
+
+.header .reply button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.header .reply .reply-btn span {
+  color: hsl(238, 40%, 52%);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.header .user .you {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: hsl(238, 40%, 52%);
+  padding: 10px;
+  border-radius: 3px;
+  color: white;
+  font-weight: 400;
+  font-size: 14px;
+  height: 20px;
+}
+
+.header .reply .delete {
+  color: hsl(358, 79%, 66%);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.header .reply .edit {
+  color: hsl(238, 40%, 52%);
+  font-size: 16px;
+  font-weight: 500;
+}
+.content {
+  width: 90%;
+  padding: 10px;
+}
+
+.content span {
+  padding: 10px;
+
+  background-color: #ffffff;
+  font-size: 16px;
+  color: hsl(211, 10%, 45%);
+}
+
+.content span:focus {
+  width: 100%;
+  height: auto;
+  margin-right: 10px;
+  border: 1px solid #4f4d97;
+  outline: #ffffff;
+  font-size: 16px;
+  padding: 10px;
+  color: hsl(212, 24%, 26%);
+  border-radius: 7px;
+}
+.header .update {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.update button {
+  width: 120px;
+  height: 43px;
+  margin: 10px;
+  border: none;
+  background-color: #4f4d97;
+  color: #ffffff;
+  font-size: 16px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+  .reply .reply-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    padding: 6px;
+  }
+
+  .reply .delete {
+    position: absolute;
+    right: 80px;
+    bottom: 20px;
+    padding: 6px;
+  }
+
+  .reply .edit {
+    position: absolute;
+    right: 10px;
+    bottom: 20px;
+    padding: 6px;
+  }
+
+  .header .user {
+    width: auto;
+  }
+
+  .content {
+    width: 100%;
+  }
+}

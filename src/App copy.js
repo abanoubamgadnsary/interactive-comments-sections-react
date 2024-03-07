@@ -1,47 +1,46 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Counter from "./Component/Counter";
 import Header from "./Component/Header";
 import "./App.css";
 import ReplyForm from "./Component/ReplyForm";
-import Modal from "./Component/Modal";
 
 function App() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedReplyId, setSelectedReplyId] = useState(null);
+  const [addReplies, setAddReplies] = useState([]);
+  const [editingReply, setEditingReply] = useState(null);
   const [isEditingReply, setIsEditingReply] = useState(false);
   const [isReply, setIsReply] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
-  const inputRef = useRef(null);
   function handleReply(id) {
     setSelectedReplyId(id);
     setIsReply(true);
     setIsEditingReply(false);
+    console.log(`Reply: ${isReply}, edit: ${isEditingReply}`);
   }
   function addNewReplies(commentId, content) {
-    const newReply = {
+    const newReplies = {
       id: Math.random().toString(),
-      content: content,
+      content,
     };
+    setAddReplies([...addReplies, newReplies]);
+
     const updatedData = data.map((comment) => {
       if (comment.id === commentId) {
         return {
           ...comment,
-          replies: [...comment.replies, newReply],
+          replies: [...comment.replies, newReplies],
         };
       }
+
       return comment;
     });
     setData(updatedData);
     setSelectedReplyId(null);
-    setIsReply(false);
+    console.log(updatedData[1].replies.length);
   }
-  function handleDelete(id) {
-    setSelectedReplyId(id);
-    setShowDelete(true);
-    console.log(selectedReplyId, showDelete);
-  }
-  const handleDeleteComments = (replyId) => {
+
+  const handleDeleteComments = (commetID, replyId) => {
     if (replyId) {
       setData((prevData) =>
         prevData.map((comment) =>
@@ -57,16 +56,16 @@ function App() {
       );
     } else {
       setData((prevData) =>
-        prevData.filter((comment) => comment.id !== replyId)
+        prevData.filter((comment) => comment.id !== commetID)
       );
     }
-    setShowDelete(false);
   };
 
-  function handleEditReply(id) {
-    setSelectedReplyId(id);
+  function handleEditReply(reply) {
+    setSelectedReplyId(reply.id);
     setIsEditingReply(true);
     setIsReply(false);
+    console.log(`Reply: ${isReply}, edit: ${isEditingReply}`);
   }
   function handleSaveEdits(replyId, updatedContent) {
     // Find the comment that contains the reply to be edited
@@ -85,14 +84,14 @@ function App() {
           ? {
               ...c,
               replies: c.replies.map((r) =>
-                r.id === replyId ? updatedReply : r
+                r.replies === replyId ? updatedReply : r
               ),
             }
           : c
       )
     );
     // Reset the `editingReply` state variable
-    setIsEditingReply(false);
+    setEditingReply(null);
   }
 
   useEffect(() => {
@@ -111,70 +110,43 @@ function App() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (isEditingReply) inputRef?.current?.focus();
-  }, [isEditingReply]);
-
-  useEffect(() => {
-    if (isReply) inputRef?.current?.focus();
-  }, [isReply]);
   return (
     <>
-      {showDelete && (
-        <Modal
-          showDelete={showDelete}
-          setShowDelete={() => setShowDelete(false)}
-          handleDeleteComments={() => handleDeleteComments(selectedReplyId)}
-        />
-      )}
       <div className="app">
         {data.map((comment) => (
-          <div className="container">
+          <div className="container" key={comment.id}>
             <div className="comment">
-              <Counter
-                score={comment.score}
-                key={comment.score}
-                isLoading={isLoading}
-              />
+              <Counter score={comment.score} isLoading={isLoading} />
               <Header
-                key={comment.id + "-header"}
                 content={comment.content}
                 comment={comment}
                 image={comment.user.image.png}
                 username={comment.user.username}
                 createdAt={comment.createdAt}
-                isReply={isReply}
                 handleReply={() => handleReply(comment.id)}
               />
             </div>
 
-            {selectedReplyId === comment.id && isReply && (
+            {selectedReplyId === comment.id && isReply ? (
               <div className="comment">
                 <ReplyForm
-                  key={comment.id}
                   comment={comment}
-                  inputRef={inputRef}
                   image={"./images/avatars/image-juliusomo.png"}
                   children={"REPLY"}
                   onAddReplies={(content) => addNewReplies(comment.id, content)}
-                  handleSaveEdits={(editedReplies) =>
-                    handleSaveEdits(comment.id, editedReplies)
+                  handleSaveEdits={(updatedContent) =>
+                    handleSaveEdits(comment.id, updatedContent)
                   }
-                  inputValue={
-                    selectedReplyId === comment?.id
-                      ? `@${comment?.user?.username} `
-                      : ""
-                  }
+                  isEditingReply={isEditingReply}
+                  initialValue={editingReply?.content}
                 />
               </div>
-            )}
-
+            ) : null}
             {comment.replies.map((reply) => (
               <>
                 <div className="replies" key={reply.id}>
-                  <Counter score={reply?.score || 0} key={reply.score} />
+                  <Counter score={reply?.score || 0} />
                   <Header
-                    key={reply.id + "-header"}
                     comment={reply}
                     image={
                       reply.user?.image?.png ||
@@ -184,37 +156,48 @@ function App() {
                     createdAt={reply.createdAt}
                     content={reply.content}
                     handleReply={() => handleReply(reply.id)}
-                    handleDeleteCommentsId={() => handleDelete(reply.id)}
-                    handleEdit={() => handleEditReply(reply.id)}
+                    handleDeleteComments={() =>
+                      handleDeleteComments(comment, reply?.id)
+                    }
+                    handleEdit={() => handleEditReply(reply)}
                     isEditingReply={isEditingReply}
                     selectedReplyId={selectedReplyId}
-                    handleSaveEdits={(updatedContent) =>
-                      handleSaveEdits(reply.id, updatedContent)
-                    }
-                    inputRef={inputRef}
                   />
                 </div>
-                {selectedReplyId === reply.id && isReply && (
+
+                {selectedReplyId === reply.id && isReply ? (
                   <div className="replies">
                     <ReplyForm
-                      comment={reply}
-                      key={reply.id}
-                      inputRef={inputRef}
                       image={"./images/avatars/image-juliusomo.png"}
                       children={isEditingReply ? "UPDATE" : "REPLY"}
                       onAddReplies={(content) =>
-                        addNewReplies(comment.id, content)
+                        addNewReplies(reply.id, content)
+                      }
+                      initialValue={editingReply?.reply}
+                      handleSaveEdits={(updatedContent) =>
+                        handleSaveEdits(reply.id, updatedContent)
                       }
                       isEditingReply={isEditingReply}
                       selectedReplyId={selectedReplyId}
-                      inputValue={
-                        selectedReplyId === reply?.id
-                          ? `@${reply?.user?.username} `
-                          : ""
-                      }
                     />
                   </div>
-                )}
+                ) : selectedReplyId === reply.id && isEditingReply ? (
+                  <div className="replies">
+                    <ReplyForm
+                      image={"./images/avatars/image-juliusomo.png"}
+                      children={isEditingReply ? "UPDATE" : "REPLY"}
+                      onAddReplies={(content) =>
+                        addNewReplies(reply.id, content)
+                      }
+                      initialValue={editingReply?.reply}
+                      handleSaveEdits={(updatedContent) =>
+                        handleSaveEdits(reply.id, updatedContent)
+                      }
+                      isEditingReply={isEditingReply}
+                      selectedReplyId={selectedReplyId}
+                    />
+                  </div>
+                ) : null}
               </>
             ))}
           </div>
