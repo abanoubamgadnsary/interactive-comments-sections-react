@@ -4,7 +4,7 @@ import Header from "./Component/Header";
 import "./App.css";
 import ReplyForm from "./Component/ReplyForm";
 import Modal from "./Component/Modal";
-import mockData from "./data/data.json";
+import mockData from "./mockData.json";
 
 function App() {
   const [data, setData] = useState([]);
@@ -107,6 +107,7 @@ function App() {
   useEffect(() => {
     if (isReply) inputRef?.current?.focus();
   }, [isReply]);
+  console.log(data);
   return (
     <>
       {showDelete && (
@@ -116,11 +117,10 @@ function App() {
           handleDeleteComments={() => handleDeleteComments(selectedReplyId)}
         />
       )}
-      {!data ? (
-        <h1>Loading</h1>
-      ) : (
-        <div className="app">
-          {data.map((comment) => (
+
+      <div className="app">
+        {data &&
+          data.map((comment) => (
             <div className="container">
               <div className="comment">
                 <Counter
@@ -132,8 +132,8 @@ function App() {
                   key={comment.id + "-header"}
                   content={comment.content}
                   comment={comment}
-                  image={comment.user.image.png}
-                  username={comment.user.username}
+                  image={comment?.user?.image.png}
+                  username={comment?.user?.username}
                   createdAt={comment.createdAt}
                   isReply={isReply}
                   handleReply={() => handleReply(comment.id)}
@@ -213,18 +213,17 @@ function App() {
               ))}
             </div>
           ))}
-          <div className="comment">
-            <ReplyForm
-              comment={data[data.length - 1]}
-              image={"./images/avatars/image-juliusomo.png"}
-              children={"SEND"}
-              onAddReplies={(content) =>
-                addNewReplies(data[data.length - 1].id, content)
-              }
-            />
-          </div>
+        <div className="comment">
+          <ReplyForm
+            comment={data[data.length - 1]}
+            image={"./images/avatars/image-juliusomo.png"}
+            children={"SEND"}
+            onAddReplies={(content) =>
+              addNewReplies(data[data.length - 1].id, content)
+            }
+          />
         </div>
-      )}
+      </div>
     </>
   );
 }
