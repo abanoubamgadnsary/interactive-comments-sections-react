@@ -132,8 +132,8 @@ function App() {
                   key={comment.id + "-header"}
                   content={comment.content}
                   comment={comment}
-                  image={comment?.user?.image.png}
-                  username={comment?.user?.username}
+                  image={comment.user.image.png}
+                  username={comment.user.username}
                   createdAt={comment.createdAt}
                   isReply={isReply}
                   handleReply={() => handleReply(comment.id)}
