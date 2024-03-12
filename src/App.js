@@ -4,6 +4,7 @@ import Header from "./Component/Header";
 import "./App.css";
 import ReplyForm from "./Component/ReplyForm";
 import Modal from "./Component/Modal";
+import mockData from "./data/data.json";
 
 function App() {
   const [data, setData] = useState([]);
@@ -96,19 +97,7 @@ function App() {
   }
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setIsLoading(true);
-        const res = await fetch("http://localhost:8000/comments");
-        const data = await res.json();
-        setData(data);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchData();
+    setData(mockData);
   }, []);
 
   useEffect(() => {
@@ -127,109 +116,115 @@ function App() {
           handleDeleteComments={() => handleDeleteComments(selectedReplyId)}
         />
       )}
-      <div className="app">
-        {data.map((comment) => (
-          <div className="container">
-            <div className="comment">
-              <Counter
-                score={comment.score}
-                key={comment.score}
-                isLoading={isLoading}
-              />
-              <Header
-                key={comment.id + "-header"}
-                content={comment.content}
-                comment={comment}
-                image={comment.user.image.png}
-                username={comment.user.username}
-                createdAt={comment.createdAt}
-                isReply={isReply}
-                handleReply={() => handleReply(comment.id)}
-              />
-            </div>
-
-            {selectedReplyId === comment.id && isReply && (
+      {!data ? (
+        <h1>Loading</h1>
+      ) : (
+        <div className="app">
+          {data.map((comment) => (
+            <div className="container">
               <div className="comment">
-                <ReplyForm
-                  key={comment.id}
+                <Counter
+                  score={comment.score}
+                  key={comment.score}
+                  isLoading={isLoading}
+                />
+                <Header
+                  key={comment.id + "-header"}
+                  content={comment.content}
                   comment={comment}
-                  inputRef={inputRef}
-                  image={"./images/avatars/image-juliusomo.png"}
-                  children={"REPLY"}
-                  onAddReplies={(content) => addNewReplies(comment.id, content)}
-                  handleSaveEdits={(editedReplies) =>
-                    handleSaveEdits(comment.id, editedReplies)
-                  }
-                  inputValue={
-                    selectedReplyId === comment?.id
-                      ? `@${comment?.user?.username} `
-                      : ""
-                  }
+                  image={comment.user.image.png}
+                  username={comment.user.username}
+                  createdAt={comment.createdAt}
+                  isReply={isReply}
+                  handleReply={() => handleReply(comment.id)}
                 />
               </div>
-            )}
 
-            {comment.replies.map((reply) => (
-              <>
-                <div className="replies" key={reply.id}>
-                  <Counter score={reply?.score || 0} key={reply.score} />
-                  <Header
-                    key={reply.id + "-header"}
-                    comment={reply}
-                    image={
-                      reply.user?.image?.png ||
-                      "./images/avatars/image-juliusomo.png"
-                    }
-                    username={reply.user?.username || "juliusomo"}
-                    createdAt={reply.createdAt}
-                    content={reply.content}
-                    handleReply={() => handleReply(reply.id)}
-                    handleDeleteCommentsId={() => handleDelete(reply.id)}
-                    handleEdit={() => handleEditReply(reply.id)}
-                    isEditingReply={isEditingReply}
-                    selectedReplyId={selectedReplyId}
-                    handleSaveEdits={(updatedContent) =>
-                      handleSaveEdits(reply.id, updatedContent)
-                    }
+              {selectedReplyId === comment.id && isReply && (
+                <div className="comment">
+                  <ReplyForm
+                    key={comment.id}
+                    comment={comment}
                     inputRef={inputRef}
+                    image={"./images/avatars/image-juliusomo.png"}
+                    children={"REPLY"}
+                    onAddReplies={(content) =>
+                      addNewReplies(comment.id, content)
+                    }
+                    handleSaveEdits={(editedReplies) =>
+                      handleSaveEdits(comment.id, editedReplies)
+                    }
+                    inputValue={
+                      selectedReplyId === comment?.id
+                        ? `@${comment?.user?.username} `
+                        : ""
+                    }
                   />
                 </div>
-                {selectedReplyId === reply.id && isReply && (
-                  <div className="replies">
-                    <ReplyForm
+              )}
+
+              {comment.replies.map((reply) => (
+                <>
+                  <div className="replies" key={reply.id}>
+                    <Counter score={reply?.score || 0} key={reply.score} />
+                    <Header
+                      key={reply.id + "-header"}
                       comment={reply}
-                      key={reply.id}
-                      inputRef={inputRef}
-                      image={"./images/avatars/image-juliusomo.png"}
-                      children={isEditingReply ? "UPDATE" : "REPLY"}
-                      onAddReplies={(content) =>
-                        addNewReplies(comment.id, content)
+                      image={
+                        reply.user?.image?.png ||
+                        "./images/avatars/image-juliusomo.png"
                       }
+                      username={reply.user?.username || "juliusomo"}
+                      createdAt={reply.createdAt}
+                      content={reply.content}
+                      handleReply={() => handleReply(reply.id)}
+                      handleDeleteCommentsId={() => handleDelete(reply.id)}
+                      handleEdit={() => handleEditReply(reply.id)}
                       isEditingReply={isEditingReply}
                       selectedReplyId={selectedReplyId}
-                      inputValue={
-                        selectedReplyId === reply?.id
-                          ? `@${reply?.user?.username} `
-                          : ""
+                      handleSaveEdits={(updatedContent) =>
+                        handleSaveEdits(reply.id, updatedContent)
                       }
+                      inputRef={inputRef}
                     />
                   </div>
-                )}
-              </>
-            ))}
+                  {selectedReplyId === reply.id && isReply && (
+                    <div className="replies">
+                      <ReplyForm
+                        comment={reply}
+                        key={reply.id}
+                        inputRef={inputRef}
+                        image={"./images/avatars/image-juliusomo.png"}
+                        children={isEditingReply ? "UPDATE" : "REPLY"}
+                        onAddReplies={(content) =>
+                          addNewReplies(comment.id, content)
+                        }
+                        isEditingReply={isEditingReply}
+                        selectedReplyId={selectedReplyId}
+                        inputValue={
+                          selectedReplyId === reply?.id
+                            ? `@${reply?.user?.username} `
+                            : ""
+                        }
+                      />
+                    </div>
+                  )}
+                </>
+              ))}
+            </div>
+          ))}
+          <div className="comment">
+            <ReplyForm
+              comment={data[data.length - 1]}
+              image={"./images/avatars/image-juliusomo.png"}
+              children={"SEND"}
+              onAddReplies={(content) =>
+                addNewReplies(data[data.length - 1].id, content)
+              }
+            />
           </div>
-        ))}
-        <div className="comment">
-          <ReplyForm
-            comment={data[data.length - 1]}
-            image={"./images/avatars/image-juliusomo.png"}
-            children={"SEND"}
-            onAddReplies={(content) =>
-              addNewReplies(data[data.length - 1].id, content)
-            }
-          />
         </div>
-      </div>
+      )}
     </>
   );
 }
